@@ -11,6 +11,7 @@ interface EnterForm {
 }
 
 const Enter: NextPage = () => {
+  const [submitting, setSubmitting] = useState(false);
   const {register, handleSubmit, reset} = useForm<EnterForm>();
   const [method, setMethod] = useState<"email" | "phone">("email");
   const onEmailClick = () => {
@@ -21,7 +22,18 @@ const Enter: NextPage = () => {
     reset();
     setMethod("phone")
   };
-  const onValid = (data:EnterForm) => {console.log(data)};
+  const onValid = (data:EnterForm) => {
+    setSubmitting(true)
+    fetch("/api/users/enter", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      }
+    }).then(()=>{
+      setSubmitting(false);
+    });
+  };
   return (
     <div className="mt-16 px-4">
       <h3 className="text-3xl font-bold text-center">Enter to Carrot</h3>
@@ -78,7 +90,7 @@ const Enter: NextPage = () => {
           ) : null}
           {method === "email" ? <Button text={"Get login link"} /> : null}
           {method === "phone" ? (
-            <Button text={"Get one-time password"} />
+            <Button text={submitting? "Loading" : "Get one-time password"} />
           ) : null}
         </form>
 
